@@ -1,6 +1,31 @@
 #!/usr/bin/env bash
-#configure nginx server to listen for port 80
-#this is spam
-#this is spam
-sed -i 's/8080/80/g' /etc/nginx/sites-enabled/default
+# This script configures Nginx to listen on port 80 and restarts the Nginx service
+
+# Ensure Nginx configuration is set to listen on port 80
+NGINX_CONF="/etc/nginx/sites-available/default"
+
+# Check if the file exists
+if [ ! -f "$NGINX_CONF" ]; then
+    echo "Nginx configuration file not found: $NGINX_CONF"
+    exit 1
+fi
+
+# Update configuration to listen on port 80
+sed -i 's/listen 8080;/listen 80;/' "$NGINX_CONF"
+sed -i 's/listen \[::\]:8080;/listen [::]:80;/' "$NGINX_CONF"
+
+# Restart Nginx service
+echo "Restarting Nginx service..."
 service nginx restart
+
+# Verify if Nginx is listening on port 80
+if netstat -tuln | grep -q ":80 "; then
+    echo "Nginx is successfully listening on port 80"
+else
+    echo "Failed to start Nginx on port 80"
+    exit 1
+fi
+
+# Display Nginx status
+service nginx status
+
